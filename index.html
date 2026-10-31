@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>База знаний СДЭК и КЛО</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#121316] text-white p-4 min-h-screen font-sans">
+  <div class="max-w-md mx-auto bg-[#1A1D24] border border-[#2A2E39] rounded-2xl p-5 shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <span class="bg-[#10B981] text-black font-bold px-2 py-1 rounded text-xs">СДЭК</span>
+        <span class="bg-emerald-900/50 text-emerald-400 font-semibold px-2 py-1 rounded text-xs border border-emerald-500/30">КЛО 2026</span>
+      </div>
+      <span class="text-xs text-gray-400">538+ позиций</span>
+    </div>
+
+    <h1 class="text-xl font-bold mb-1">База знаний ПВЗ</h1>
+    <p class="text-xs text-gray-400 mb-4">Регламент от 02.10.2026 • ОГ и Спецгрузы</p>
+
+    <input type="text" id="search" placeholder="Поиск (волосы, заготовки, нож, АКБ)..." class="w-full bg-[#121316] border border-[#2A2E39] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#10B981] mb-4 text-white">
+
+    <div id="count" class="text-xs text-gray-400 mb-2 hidden"></div>
+    <div id="results" class="space-y-3 max-h-[65vh] overflow-y-auto"></div>
+  </div>
+
+  <script>
+    const data = [
+      {n: "Волосы (натуральные/искусственные)", c: "неопасный", a: "Да", g: "Да", d: "Изделие/товар для продажи. Обязательны сертификаты/декларации."},
+      {n: "Волосы биологический материал", c: "спец. груз", a: "Нет", g: "Нет", d: "Запрещено без медицинских подтверждающих документов."},
+      {n: "Заготовки «домашние» (Варенье, Соленья, Мёд)", c: "неопасный", a: "Нет", g: "Да", d: "Консервация до 5 л. ТОЛЬКО НАЗЕМНЫМ транспортом. Упаковка: коробка в коробке / обрешетка (Приложение №3)."},
+      {n: "Конструктивно сходные с оружием изделия (до 3 Дж, арбалеты)", c: "неопасный", a: "Нет", g: "Да*", d: "Только НАЗЕМНЫМ транспортом. Обязателен сертификат/протокол испытаний, что это не оружие."},
+      {n: "Оружие огнестрельное / холодное / газовое", c: "спец. груз", a: "Нет", g: "Нет", d: "Строгий запрет к перевозке физлицам (ФЗ №150)."},
+      {n: "Запчасти для оружия (неосновные: магазины, приклады, прицелы)", c: "неопасный", a: "Нет", g: "Да", d: "Разрешено только НАЗЕМНЫМ транспортом по РФ."},
+      {n: "Power Bank / Литиевые АКБ отдельно", c: "9 класс", a: "Нет", g: "Да", d: "Отдельно от оборудования — только НАЗЕМНЫМ транспортом."},
+      {n: "Смартфон / Ноутбук (АКБ внутри)", c: "9 класс", a: "Да*", g: "Да", d: "Авиа до 5 кг АКБ с отметкой в описании. Наземным — без ограничений."},
+      {n: "Духи / Парфюмерия / Аэрозоли до 500 мл", c: "9 класс", a: "Да", g: "Да", d: "Авиа с доп. сбором за ОГ (+). Наземным — по стандартным тарифам."}
+    ];
+
+    const input = document.getElementById('search');
+    const res = document.getElementById('results');
+    const cnt = document.getElementById('count');
+
+    input.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      res.innerHTML = '';
+      if (!q) { cnt.classList.add('hidden'); return; }
+      
+      const stem = q.replace(/(ы|и|а|я|о|е|ом|ам|ами|ах|ов|ев|ей)$/g, '');
+      const filtered = data.filter(i => (i.n + ' ' + i.d).toLowerCase().includes(stem));
+      
+      cnt.textContent = 'Найдено позиций: ' + filtered.length;
+      cnt.classList.remove('hidden');
+
+      filtered.forEach(i => {
+        const el = document.createElement('div');
+        el.className = 'bg-[#121316] border border-[#2A2E39] p-4 rounded-xl text-left';
+        el.innerHTML = `
+          <div class="text-xs text-emerald-400 font-bold mb-1">Класс: ${i.c}</div>
+          <div class="font-bold text-base mb-1">${i.n}</div>
+          <div class="text-xs text-gray-300 mb-3 leading-relaxed">${i.d}</div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-2 rounded bg-emerald-950/40 border border-emerald-500/30 text-emerald-300">
+              <b>Наземная:</b> ${i.g.includes('Да') ? 'Разрешено' : 'Нельзя'}
+            </div>
+            <div class="p-2 rounded ${i.a.includes('Да') ? 'bg-amber-950/40 border border-amber-500/30 text-amber-300' : 'bg-red-950/40 border border-red-500/30 text-red-300'}">
+              <b>Авиа:</b> ${i.a.includes('Да') ? 'Разрешено' : 'Нельзя'}
+            </div>
+          </div>
+        `;
+        res.appendChild(el);
+      });
+    });
+  </script>
+</body>
+</html>
